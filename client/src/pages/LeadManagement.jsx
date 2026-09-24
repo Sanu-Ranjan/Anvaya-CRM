@@ -16,7 +16,6 @@ export const LeadManagement = () => {
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState(null);
   const [comment, setComment] = useState("");
-  const [commentAuthor, setCommentAuthor] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [saving, setSaving] = useState(false);
   const [comments, setComments] = useState(null);
@@ -71,12 +70,10 @@ export const LeadManagement = () => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const payload = { commentText: comment };
-      if (commentAuthor) payload.author = commentAuthor;
-      const newComment = await post(API_ROUTES.comments.add(id), payload);
+      // author is the logged in user, set by the server
+      const newComment = await post(API_ROUTES.comments.add(id), { commentText: comment });
       setComments([...(displayComments ?? []), newComment]);
       setComment("");
-      setCommentAuthor("");
       toast.success("Comment added!");
     } catch (err) {
       toast.error(err.message);
@@ -179,12 +176,6 @@ export const LeadManagement = () => {
             <div className="card-header fw-semibold">Comments</div>
             <div className="card-body">
               <form onSubmit={handleCommentSubmit} className="mb-3">
-                <div className="mb-2">
-                  <select className="form-select form-select-sm" value={commentAuthor} onChange={(e) => setCommentAuthor(e.target.value)}>
-                    <option value="">Select Author (optional)</option>
-                    {agents.map((a) => <option key={a._id} value={a._id}>{a.name}</option>)}
-                  </select>
-                </div>
                 <div className="mb-2">
                   <textarea className="form-control" rows={3} placeholder="Write a comment..." value={comment} onChange={(e) => setComment(e.target.value)} required />
                 </div>

@@ -1,161 +1,164 @@
 # Anvaya CRM
- 
-A full-stack CRM for managing sales leads through a defined pipeline. Built as a portfolio project to demonstrate relational data modeling in MongoDB, MongoDB aggregation for reporting, Chart.js data visualization, and self-hosted deployment on a VPS.
- 
+
+A full-stack CRM for managing sales leads through a defined pipeline. Built to demonstrate JWT authentication with role-based access, relational data modeling in MongoDB, aggregation-based reporting, URL-driven filtering, and self-hosted VPS deployment.
+
+---
+
+## Demo Link
+
+[Live Demo](https://crm.devranjan.cloud/)
+
+Demo logins (or sign up for a member account):
+
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | admin@anvaya.com | admin123 |
+| Member | member@anvaya.com | member123 |
+
+---
+
+## Demo Video
+
+Watch a walkthrough of all major features:
+
+[Video Link](https://drive.google.com/file/d/1dTpiMd2fwtaIA9yHki-5L2Kt9Ri7gwGY/view?usp=sharing)
+
+---
+
+## Quick Start
+
+```bash
+# Clone the repo
+git clone https://github.com/Sanu-Ranjan/Anvaya-CRM.git
+cd Anvaya-CRM
+
+# Backend
+cd server
+cp .env.example .env      # fill in MONGO_URI, ALLOWED_ORIGINS, JWT_SECRET, ADMIN_EMAILS
+npm install
+npm run seed              # populate demo data and demo logins
+npm run dev               # starts on http://localhost:3000
+
+# Frontend
+cd ../client
+npm install
+npm run dev               # starts on http://localhost:5173
+```
+
+---
+
 ## Tech Stack
- 
-- **Frontend:** React 19, React Router 7, Bootstrap 5 (via CDN), Chart.js + react-chartjs-2, native `fetch`
-- **Backend:** Node.js, Express 4, Mongoose 8
+
+- **Frontend:** React 19, React Router 7, Bootstrap 5 (CDN), Chart.js + react-chartjs-2, native fetch
+- **Backend:** Node.js, Express 4, Mongoose 8, JWT (jsonwebtoken), bcrypt
 - **Database:** MongoDB (self-hosted on VPS)
-- **Infrastructure:** Hostinger VPS (Ubuntu LTS), Nginx reverse proxy, PM2, Let's Encrypt via Certbot
+- **Infrastructure:** Hostinger VPS (Ubuntu LTS), Nginx, PM2, Let's Encrypt via Certbot
 - **CI/CD:** GitHub Actions — auto-deploys on push to `main`
+
+---
+
 ## Combined Features
- 
+
+- Signup / login with JWT; the whole app is behind login
+- Role-based access: admins manage agents, delete leads and use Settings; members work on leads
 - Lead CRUD with assignment, status workflow, priority, tags, time-to-close
 - Sales agents directory (with delete)
-- Comments / activity log per lead (with author + timestamp)
+- Comments / activity log per lead, authored by the logged-in user
 - Path-based URL routing for status and agent views (`/leads/status/:status`, `/leads/by-agent/:agentId`)
-- Filterable & sortable lead list by (status, agent, priority, sort by field + order)
-- Grouped views (leads by status, leads by sales agent)
-- Settings page — search and delete agents or leads
+- Filterable and sortable lead list by status, agent, priority, sort field and order
+- Grouped views — leads by status, leads by sales agent
+- Settings page (admin) — search and delete agents or leads
 - Reports dashboard with 5 visualizations:
   - Closed leads by sales agent (bar)
   - Closed vs in pipeline (pie)
   - Lead status distribution (pie)
   - Closed in last 7 days by agent (bar)
   - Pipeline by status (bar)
-- Auto-set `closedAt` when a lead's status flips to `Closed` (via Mongoose `pre('save')` hook)
+- Auto-set `closedAt` when a lead's status flips to Closed via Mongoose `pre('save')` hook
+
+---
+
 ## API Quick Reference
- 
-All endpoints are prefixed with `/anvaya/v1`.
- 
-| Method | Endpoint                     | Description                          |
-|--------|------------------------------|--------------------------------------|
-| GET    | `/leads`                     | List leads (filters: `status`, `salesAgent`, `source`, `priority`, `tags`, `sortBy`, `order`) |
-| POST   | `/leads`                     | Create a lead                        |
-| GET    | `/leads/:id`                 | Get a single lead                    |
-| PATCH  | `/leads/:id`                 | Partial update                       |
-| DELETE | `/leads/:id`                 | Delete                               |
-| GET    | `/leads/:id/comments`        | List comments for a lead             |
-| POST   | `/leads/:id/comments`        | Add a comment                        |
-| GET    | `/agents`                    | List sales agents                    |
-| POST   | `/agents`                    | Create agent                         |
-| GET    | `/agents/:id`                | Get a single agent                   |
-| DELETE | `/agents/:id`                | Delete an agent                      |
-| GET    | `/tags`                      | List tags                            |
-| POST   | `/tags`                      | Create tag                           |
-| GET    | `/report/last-week`          | Leads closed in the last 7 days      |
-| GET    | `/report/pipeline`           | Pipeline counts grouped by status    |
-| GET    | `/report/closed-by-agent`    | Closed counts grouped by agent       |
-| GET    | `/report/status-distribution`| All statuses with counts             |
- 
+
+All endpoints are prefixed with `/anvaya/v1`. Everything except `/auth/signup` and `/auth/login` needs an `Authorization: Bearer <token>` header. Routes marked (admin) return 403 for members.
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/auth/signup` | Create account, returns `{ token, user }` |
+| POST | `/auth/login` | Login, returns `{ token, user }` |
+| GET | `/auth/me` | Current user |
+| GET | `/leads` | List leads (filters: status, salesAgent, source, priority, tags, sortBy, order) |
+| POST | `/leads` | Create a lead |
+| GET | `/leads/:id` | Get a single lead |
+| PATCH | `/leads/:id` | Partial update |
+| DELETE | `/leads/:id` | Delete (admin) |
+| GET | `/leads/:id/comments` | List comments for a lead |
+| POST | `/leads/:id/comments` | Add a comment |
+| GET | `/agents` | List sales agents |
+| POST | `/agents` | Create agent (admin) |
+| GET | `/agents/:id` | Get a single agent |
+| DELETE | `/agents/:id` | Delete an agent (admin) |
+| GET | `/tags` | List tags |
+| POST | `/tags` | Create tag (admin) |
+| GET | `/report/last-week` | Leads closed in the last 7 days |
+| GET | `/report/pipeline` | Pipeline counts grouped by status |
+| GET | `/report/closed-by-agent` | Closed counts grouped by agent |
+| GET | `/report/status-distribution` | All statuses with counts |
+
+---
+
 ## Design Decisions
- 
-- PATCH over PUT for lead updates. PATCH matches the actual use case where you usually update only a status or an agent.
-- closedAt auto-set via a Mongoose `pre('save')` hook. Without this, the "closed last week" report can't work. The hook also clears `closedAt` if the status moves back away from Closed.
-- findById + .save() in PATCH route** (not findByIdAndUpdate) so the pre('save') hook actually fires — findByIdAndUpdate skips middleware.
-- Aggregation pipelines for reports rather than fetching everything and reducing client-side. /report/closed-by-agent uses `$match` → `$group` → `$lookup` → `$unwind` → `$project` → `$sort`.
-- Central error-handler middleware maps Mongoose validation, cast, and duplicate-key errors to clean HTTP responses, eliminating try/catch in every route.
-- asyncHandler wrapper lets every route use async/await without wrapping the body in try/catch.
-## Known Limitations (a.k.a. "Future Work")
- 
-- No authentication — every endpoint is public.
-- No pagination on `GET /leads`. Would be needed at scale.
-- Filter state on the Lead List page lives in component state, not the URL, so filters reset on refresh and can't be shared as bookmarks.
-- Comment author defaults to the lead's assigned agent since there's no concept of "logged-in user".
 
-# PRD Checklist
-
-## Data Models
-
-- [x] Lead model (name, source, salesAgent ref, status, tags, timeToClose, priority, timestamps, closedAt)
-- [x] Sales Agent model (name, unique email)
-- [x] Comment model (lead ref, author ref, commentText, createdAt)
-- [x] Tag model (unique name)
-- [x] Auto-update `updatedAt` on save
-- [x] Auto-set `closedAt` when status becomes Closed
+- **Users separate from sales agents** — agents are records that leads get assigned to; logins are `User` accounts with an `admin` or `member` role
+- **Public signup always creates a member** — emails listed in the `ADMIN_EMAILS` env var get the admin role, so nobody can make themselves admin from the UI
+- **Role checked on the server** — `verifyToken` loads the user fresh from the DB on every request, and `requireAdmin` guards admin routes; the frontend hiding buttons is only UX
+- **JWT in `Authorization` header** — frontend and API are on different domains, so a cookie would be third-party and blocked; the token lives in localStorage
+- **PATCH over PUT** — matches the actual use case where you update only a status or an agent
+- **`closedAt` auto-set** via Mongoose `pre('save')` hook — without this the closed-last-week report has no field to query. The hook also clears `closedAt` if status moves back from Closed
+- **`findById` + `.save()`** in the PATCH route instead of `findByIdAndUpdate` — so the `pre('save')` hook actually fires
+- **Aggregation pipelines** for reports — `/report/closed-by-agent` uses `$match` → `$group` → `$lookup` → `$unwind` → `$project` → `$sort`
+- **Central error-handler middleware** — maps Mongoose validation, cast, and duplicate-key errors to clean HTTP responses, eliminating try/catch in every route
+- **`asyncHandler` wrapper** — lets every route use async/await without wrapping in try/catch
+- **URL-driven filtering** — filters live in the browser URL via `useSearchParams`, making them shareable and refresh-safe
 
 ---
 
-## Backend API
+## Known Limitations
 
-### Leads
-- [x] POST /leads — create a lead
-- [x] GET /leads — list with filters (status, salesAgent, source, priority, tags, sortBy, order)
-- [x] GET /leads/:id — get a single lead
-- [x] PATCH /leads/:id — update a lead
-- [x] DELETE /leads/:id — delete a lead
-
-### Sales Agents
-- [x] POST /agents — create a sales agent
-- [x] GET /agents — list all sales agents
-- [x] GET /agents/:id — get a single sales agent
-- [x] DELETE /agents/:id — delete a sales agent
-
-### Comments
-- [x] POST /leads/:id/comments — add a comment to a lead
-- [x] GET /leads/:id/comments — list comments for a lead
-
-### Tags
-- [x] POST /tags — create a tag
-- [x] GET /tags — list all tags
-
-### Reports
-- [x] GET /report/last-week — leads closed in the last 7 days
-- [x] GET /report/pipeline — pipeline totals grouped by status
-- [x] GET /report/closed-by-agent — closed counts grouped by agent
-- [x] GET /report/status-distribution — counts of leads in every status
+- Token in localStorage is readable by JavaScript, so an XSS bug could leak it
+- No UI to promote a member to admin; roles are set via `ADMIN_EMAILS` or directly in the DB
+- No pagination on `GET /leads` — would be needed at scale
 
 ---
 
-## Frontend Screens
+## Feature Checklist
 
-- [x] Dashboard
-- [x] Lead Management (detail view with edit + comments)
-- [x] Lead List (with filters and sorting)
-- [x] Add New Lead
-- [x] Sales Agent Management (list)
-- [x] Add New Agent
-- [x] Lead Status View (grouped by status)
-- [x] Sales Agent View 
-- [x] Reports
-- [x] Settings (search + delete agents/leads)
+A full interactive checklist of every feature verified against the running app:
+
+[CHECKLIST.md](./CHECKLIST.md)
+
+Interactive version: [https://vn7mr9.csb.app/](https://vn7mr9.csb.app/)
 
 ---
 
-## Reports & Visualizations
+## Contact
 
-- [x] Leads Closed Last Week (bar chart, grouped by sales agent)
-- [x] Total Leads in Pipeline (bar chart by status)
-- [x] Leads by Sales Agent (bar chart of closed counts)
-- [x] Lead Status Distribution (pie chart)
-- [x] Closed vs In Pipeline (pie chart)
+For bugs or feature requests, reach out at [ranjan.code33@gmail.com]()
 
----
-
-## Deployment & Infrastructure
-
-- [x] Self-hosted on VPS (Hostinger, Ubuntu LTS)
-- [x] Nginx reverse proxy
-- [x] PM2 process manager
-- [x] HTTPS via Let's Encrypt (Certbot)
-- [x] MongoDB on VPS (localhost-bound, SSH tunnel for dev)
-- [x] CI/CD via GitHub Actions (auto-deploy on push to main)
-
-## Screenshots
+## Some Screenshots
 - Dashboard 
-<img width="1901" height="622" alt="image" src="https://github.com/user-attachments/assets/7399d242-5a78-4340-9378-ab341d4388ed" />
-
-- Leads by status
-<img width="1895" height="664" alt="image" src="https://github.com/user-attachments/assets/8257a27e-ab41-4f08-8274-590ea1257b59" />
+<img width="1919" height="942" alt="image" src="https://github.com/user-attachments/assets/51a76370-8eee-4b03-9915-0266285f1307" />
 
 - Lead List
-<img width="1903" height="739" alt="image" src="https://github.com/user-attachments/assets/fb6e4e2a-0d29-4699-b038-7489691c98cd" />
-
-- Reports
-<img width="1890" height="906" alt="image" src="https://github.com/user-attachments/assets/4820de73-d89c-41aa-ada3-107c61ce82cb" />
+<img width="1916" height="944" alt="image" src="https://github.com/user-attachments/assets/9a1044be-7c78-427e-b114-da03cee8f837" />
 
 - Sales Agents
-<img width="1893" height="524" alt="image" src="https://github.com/user-attachments/assets/6066dd47-aaf2-495a-a34d-92b867112585" />
+<img width="1919" height="942" alt="image" src="https://github.com/user-attachments/assets/78f43b59-5cfe-4c73-b780-f15210d790fc" />
+
+- Reports
+<img width="1919" height="939" alt="image" src="https://github.com/user-attachments/assets/5ab896e4-a0a7-4790-9a53-9e34160e94b3" />
+
+- Settings
+<img width="1919" height="942" alt="image" src="https://github.com/user-attachments/assets/610b84f3-777f-4114-958d-a26234c38979" />
 
 

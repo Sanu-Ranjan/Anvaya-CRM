@@ -38,8 +38,7 @@
 - [x] Status can be changed back from Closed to another status
 - [x] Cancel exits edit mode without making any changes
 - [x] Comments are listed with author name and timestamp
-- [x] Submitting a comment with an author selected shows that author in the thread
-- [x] Submitting a comment without selecting an author defaults to the lead's assigned agent
+- [ ] Submitting a comment shows the logged-in user as the author
 
 ## Add New Lead Page (click Add New Lead)
 
@@ -92,3 +91,15 @@
 - [x] Typing in the search box filters the table instantly
 - [x] Deleting an agent removes the row and shows a success notification
 - [x] Deleting a lead removes the row and shows a success notification
+
+## Authentication & Roles
+
+- [ ] Opening any page while logged out redirects to Login
+- [ ] Signup creates an account and lands on the Dashboard
+- [ ] Login with wrong password shows an error
+- [ ] After login, user lands back on the page they tried to open
+- [ ] Sidebar shows the logged-in user's name, email and role
+- [ ] Logout clears the session and returns to Login
+- [ ] Member does not see Settings or the Add New Agent button
+- [ ] Member opening /settings or /agents/new directly is sent to the Dashboard
+- [ ] Admin sees Settings and can delete agents and leads

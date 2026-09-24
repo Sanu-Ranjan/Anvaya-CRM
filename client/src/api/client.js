@@ -1,40 +1,34 @@
-const get = async (path) => {
-  const response = await fetch(path);
-  const data = await response.json();
-  if (!response.ok) throw new Error(data.error || "Something went wrong");
-  return data;
-};
+import { authHeaders, getToken, AUTH_LOGOUT_EVENT } from "../utils/auth";
 
-const post = async (path, body) => {
+// every request goes through here, so the token is attached in one place
+const request = async (path, options = {}) => {
   const response = await fetch(path, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
+    ...options,
+    headers: {
+      ...(options.body ? { "Content-Type": "application/json" } : {}),
+      ...authHeaders(),
+    },
   });
+
+  // token expired or invalid: tell AuthContext to log out
+  if (response.status === 401 && getToken()) {
+    window.dispatchEvent(new Event(AUTH_LOGOUT_EVENT));
+  }
+
   const text = await response.text();
   const data = text ? JSON.parse(text) : {};
   if (!response.ok) throw new Error(data.error || "Something went wrong");
   return data;
 };
 
-const patch = async (path, body) => {
-  const response = await fetch(path, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  const text = await response.text();
-  const data = text ? JSON.parse(text) : {};
-  if (!response.ok) throw new Error(data.error || "Something went wrong");
-  return data;
-};
+const get = (path) => request(path);
 
-const del = async (path) => {
-  const response = await fetch(path, { method: "DELETE" });
-  const text = await response.text();
-  const data = text ? JSON.parse(text) : {};
-  if (!response.ok) throw new Error(data.error || "Something went wrong");
-  return data;
-};
+const post = (path, body) =>
+  request(path, { method: "POST", body: JSON.stringify(body) });
+
+const patch = (path, body) =>
+  request(path, { method: "PATCH", body: JSON.stringify(body) });
+
+const del = (path) => request(path, { method: "DELETE" });
 
 export { get, post, patch, del };

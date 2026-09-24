@@ -2,7 +2,6 @@ const express = require("express");
 const mongoose = require("mongoose");
 const Comment = require("../models/Comment");
 const Lead = require("../models/Lead");
-const SalesAgent = require("../models/SalesAgent");
 const asyncHandler = require("../middleware/asyncHandler");
 const { httpError } = require("../middleware/errorHandler");
 
@@ -20,18 +19,10 @@ router.post(
       throw httpError(404, `Lead with ID '${leadId}' not found.`);
     }
 
-    // If author isn't provided, fall back to the lead's assigned agent.
-    // In a real app this would come from the authenticated user.
-    let author = req.body.author || lead.salesAgent;
-    if (!mongoose.Types.ObjectId.isValid(author)) {
-      throw httpError(400, `Invalid author ID: ${author}`);
-    }
-    const agent = await SalesAgent.findById(author);
-    if (!agent) throw httpError(404, `Author (sales agent) not found.`);
-
+    // author is always the logged in user, never taken from the body
     const comment = await Comment.create({
       lead: leadId,
-      author,
+      author: req.user.id,
       commentText: req.body.commentText,
     });
 

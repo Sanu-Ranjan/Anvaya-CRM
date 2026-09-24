@@ -1,5 +1,5 @@
 import { ROUTES_DEFINITION } from "./constants/appRoutes";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -14,21 +14,51 @@ import { SalesAgentList } from "./pages/SalesAgentList";
 import { SalesAgentView } from "./pages/SalesAgentView";
 import { SalesAgentAdd } from "./pages/SalesAgentAdd";
 import { Settings } from "./pages/Settings";
+import { Login } from "./pages/Login";
+import { Signup } from "./pages/Signup";
+import { AuthProvider } from "./contexts/AuthContext";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+
+// AuthProvider sits inside the router so pages can use useNavigate with it
+const Root = () => (
+  <AuthProvider>
+    <Outlet />
+  </AuthProvider>
+);
 
 const router = createBrowserRouter([
   {
-    element: <Layout />,
+    element: <Root />,
     children: [
-      { path: ROUTES_DEFINITION.DASHBOARD,       element: <Dashboard /> },
-      { path: ROUTES_DEFINITION.LEADS,           element: <LeadList /> },
-      { path: ROUTES_DEFINITION.LEAD_DETAIL,     element: <LeadManagement /> },
-      { path: ROUTES_DEFINITION.LEAD_NEW,        element: <LeadAdd /> },
-      { path: ROUTES_DEFINITION.AGENTS,          element: <SalesAgentList /> },
-      { path: ROUTES_DEFINITION.LEADS_BY_AGENT,  element: <SalesAgentView /> },
-      { path: ROUTES_DEFINITION.AGENT_NEW,       element: <SalesAgentAdd /> },
-      { path: ROUTES_DEFINITION.LEADS_BY_STATUS, element: <LeadStatus /> },
-      { path: ROUTES_DEFINITION.REPORTS,         element: <Reports /> },
-      { path: ROUTES_DEFINITION.SETTINGS,        element: <Settings /> },
+      { path: ROUTES_DEFINITION.LOGIN,  element: <Login /> },
+      { path: ROUTES_DEFINITION.SIGNUP, element: <Signup /> },
+      {
+        // whole app needs login
+        element: <ProtectedRoute />,
+        children: [
+          {
+            element: <Layout />,
+            children: [
+              { path: ROUTES_DEFINITION.DASHBOARD,       element: <Dashboard /> },
+              { path: ROUTES_DEFINITION.LEADS,           element: <LeadList /> },
+              { path: ROUTES_DEFINITION.LEAD_DETAIL,     element: <LeadManagement /> },
+              { path: ROUTES_DEFINITION.LEAD_NEW,        element: <LeadAdd /> },
+              { path: ROUTES_DEFINITION.AGENTS,          element: <SalesAgentList /> },
+              { path: ROUTES_DEFINITION.LEADS_BY_AGENT,  element: <SalesAgentView /> },
+              { path: ROUTES_DEFINITION.LEADS_BY_STATUS, element: <LeadStatus /> },
+              { path: ROUTES_DEFINITION.REPORTS,         element: <Reports /> },
+              {
+                // admin only pages
+                element: <ProtectedRoute adminOnly />,
+                children: [
+                  { path: ROUTES_DEFINITION.AGENT_NEW, element: <SalesAgentAdd /> },
+                  { path: ROUTES_DEFINITION.SETTINGS,  element: <Settings /> },
+                ],
+              },
+            ],
+          },
+        ],
+      },
     ],
   },
 ]);

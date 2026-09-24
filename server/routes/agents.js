@@ -3,10 +3,12 @@ const SalesAgent = require("../models/SalesAgent");
 const asyncHandler = require("../middleware/asyncHandler");
 const { httpError } = require("../middleware/errorHandler");
 const mongoose = require("mongoose");
+const { requireAdmin } = require("../middleware/auth");
 const router = express.Router();
 
 router.post(
   "/",
+  requireAdmin,
   asyncHandler(async (req, res) => {
     const agent = await SalesAgent.create(req.body);
     res.status(201).json(agent);
@@ -33,6 +35,7 @@ router.get(
 
 router.delete(
   "/:id",
+  requireAdmin,
   asyncHandler(async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       throw httpError(400, `Invalid agent ID: ${req.params.id}`);

@@ -1,6 +1,12 @@
 const API_BASE_URL = import.meta.env.VITE_BACKEND;
 
 export const API_ROUTES = {
+  auth: {
+    signup: `${API_BASE_URL}/auth/signup`,
+    login: `${API_BASE_URL}/auth/login`,
+    me: `${API_BASE_URL}/auth/me`,
+  },
+
   leads: {
     getAll: `${API_BASE_URL}/leads`,
     getById: (id) => `${API_BASE_URL}/leads/${id}`,

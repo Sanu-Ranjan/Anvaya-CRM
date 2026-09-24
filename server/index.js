@@ -9,6 +9,8 @@ const agentsRouter = require("./routes/agents");
 const commentsRouter = require("./routes/comments");
 const tagsRouter = require("./routes/tags");
 const reportsRouter = require("./routes/reports");
+const authRouter = require("./routes/auth");
+const { verifyToken } = require("./middleware/auth");
 
 const app = express();
 
@@ -17,6 +19,11 @@ if (!ALLOWED_ORIGINS) {
   console.log("Error : Allowed ORIGIN not set");
   process.exit(1);
 }
+if (!process.env.JWT_SECRET) {
+  console.log("Error : JWT_SECRET not set");
+  process.exit(1);
+}
+
 const allowedOrigins = ALLOWED_ORIGINS?.split(",") || [];
 app.use(
   cors({
@@ -30,11 +37,15 @@ app.get("/anvaya/v1/", (req, res) => {
   res.json({ message: "Anvaya CRM API is running." });
 });
 
-app.use("/anvaya/v1/leads", leadsRouter);
-app.use("/anvaya/v1/leads/:id/comments", commentsRouter);
-app.use("/anvaya/v1/agents", agentsRouter);
-app.use("/anvaya/v1/tags", tagsRouter);
-app.use("/anvaya/v1/report", reportsRouter);
+// public
+app.use("/anvaya/v1/auth", authRouter);
+
+// everything below needs a logged in user
+app.use("/anvaya/v1/leads/:id/comments", verifyToken, commentsRouter);
+app.use("/anvaya/v1/leads", verifyToken, leadsRouter);
+app.use("/anvaya/v1/agents", verifyToken, agentsRouter);
+app.use("/anvaya/v1/tags", verifyToken, tagsRouter);
+app.use("/anvaya/v1/report", verifyToken, reportsRouter);
 
 app.use((req, res) => {
   res

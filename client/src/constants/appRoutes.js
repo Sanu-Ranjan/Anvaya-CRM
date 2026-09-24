@@ -9,6 +9,8 @@ const ROUTES = {
   AGENT_NEW: "/agents/new",
   REPORTS: "/reports",
   SETTINGS: "/settings",
+  LOGIN: "/login",
+  SIGNUP: "/signup",
 };
 
 const ROUTES_DEFINITION = {
@@ -22,6 +24,8 @@ const ROUTES_DEFINITION = {
   AGENT_NEW: "/agents/new",
   REPORTS: "/reports",
   SETTINGS: "/settings",
+  LOGIN: "/login",
+  SIGNUP: "/signup",
 };
 
 export { ROUTES, ROUTES_DEFINITION };

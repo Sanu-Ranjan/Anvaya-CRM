@@ -5,12 +5,30 @@ const SalesAgent = require("../models/SalesAgent");
 const Lead = require("../models/Lead");
 const Comment = require("../models/Comment");
 const Tag = require("../models/Tag");
+const User = require("../models/User");
+const bcrypt = require("bcrypt");
 
 const agents = [
   { name: "John Doe", email: "john@anvaya.com" },
   { name: "Jane Smith", email: "jane@anvaya.com" },
   { name: "Mark Wilson", email: "mark@anvaya.com" },
   { name: "Priya Sharma", email: "priya@anvaya.com" },
+];
+
+// demo logins, also listed in the README
+const demoUsers = [
+  {
+    name: "Demo Admin",
+    email: "admin@anvaya.com",
+    password: "admin123",
+    role: "admin",
+  },
+  {
+    name: "Demo Member",
+    email: "member@anvaya.com",
+    password: "member123",
+    role: "member",
+  },
 ];
 
 const tags = [
@@ -82,6 +100,18 @@ const seed = async () => {
     Tag.deleteMany({}),
   ]);
 
+  // only demo accounts are reset, real signups are left alone
+  console.log("Seeding demo users...");
+  await User.deleteMany({ email: { $in: demoUsers.map((u) => u.email) } });
+  const createdUsers = await User.insertMany(
+    await Promise.all(
+      demoUsers.map(async (u) => ({
+        ...u,
+        password: await bcrypt.hash(u.password, 10),
+      })),
+    ),
+  );
+
   console.log("Seeding sales agents...");
   const createdAgents = await SalesAgent.insertMany(agents);
 
@@ -122,7 +152,7 @@ const seed = async () => {
     for (let i = 0; i < numComments; i++) {
       await Comment.create({
         lead: lead._id,
-        author: lead.salesAgent,
+        author: randomItem(createdUsers)._id,
         commentText: randomItem(sampleComments),
       });
     }

@@ -2,10 +2,12 @@ import { useNavigate, Link } from "react-router-dom";
 import { API_ROUTES } from "../constants/apiRoutes";
 import { ROUTES } from "../constants/appRoutes";
 import { useGet } from "../hooks/useGet";
+import { useAuth } from "../contexts/AuthContext";
 
 export const SalesAgentList = () => {
   const { data: agents, loading, error } = useGet(API_ROUTES.agents.getAll);
   const navigate = useNavigate();
+  const { isAdmin } = useAuth();
 
   if (loading) return <p className="p-3">Loading...</p>;
   if (error) return <p className="p-3 text-danger">Error: {error}</p>;
@@ -14,9 +16,11 @@ export const SalesAgentList = () => {
     <div className="p-3">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h5 className="mb-0">Sales Agents</h5>
-        <button className="btn btn-primary btn-sm" onClick={() => navigate(ROUTES.AGENT_NEW)}>
-          + Add New Agent
-        </button>
+        {isAdmin && (
+          <button className="btn btn-primary btn-sm" onClick={() => navigate(ROUTES.AGENT_NEW)}>
+            + Add New Agent
+          </button>
+        )}
       </div>
 
       <div className="card">

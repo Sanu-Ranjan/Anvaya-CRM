@@ -4,6 +4,7 @@ const Lead = require("../models/Lead");
 const SalesAgent = require("../models/SalesAgent");
 const asyncHandler = require("../middleware/asyncHandler");
 const { httpError } = require("../middleware/errorHandler");
+const { requireAdmin } = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -199,6 +200,7 @@ router.patch(
 
 router.delete(
   "/:id",
+  requireAdmin,
   asyncHandler(async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       throw httpError(400, `Invalid lead ID: ${req.params.id}`);
