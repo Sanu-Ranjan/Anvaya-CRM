@@ -10,9 +10,9 @@ A full-stack CRM for managing sales leads through a defined pipeline. Built to d
 
 Demo logins (or sign up for a member account):
 
-| Role | Email | Password |
-|------|-------|----------|
-| Admin | admin@anvaya.com | admin123 |
+| Role   | Email             | Password  |
+| ------ | ----------------- | --------- |
+| Admin  | admin@anvaya.com  | admin123  |
 | Member | member@anvaya.com | member123 |
 
 ---
@@ -82,28 +82,28 @@ npm run dev               # starts on http://localhost:5173
 
 All endpoints are prefixed with `/anvaya/v1`. Everything except `/auth/signup` and `/auth/login` needs an `Authorization: Bearer <token>` header. Routes marked (admin) return 403 for members.
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/auth/signup` | Create account, returns `{ token, user }` |
-| POST | `/auth/login` | Login, returns `{ token, user }` |
-| GET | `/auth/me` | Current user |
-| GET | `/leads` | List leads (filters: status, salesAgent, source, priority, tags, sortBy, order) |
-| POST | `/leads` | Create a lead |
-| GET | `/leads/:id` | Get a single lead |
-| PATCH | `/leads/:id` | Partial update |
-| DELETE | `/leads/:id` | Delete (admin) |
-| GET | `/leads/:id/comments` | List comments for a lead |
-| POST | `/leads/:id/comments` | Add a comment |
-| GET | `/agents` | List sales agents |
-| POST | `/agents` | Create agent (admin) |
-| GET | `/agents/:id` | Get a single agent |
-| DELETE | `/agents/:id` | Delete an agent (admin) |
-| GET | `/tags` | List tags |
-| POST | `/tags` | Create tag (admin) |
-| GET | `/report/last-week` | Leads closed in the last 7 days |
-| GET | `/report/pipeline` | Pipeline counts grouped by status |
-| GET | `/report/closed-by-agent` | Closed counts grouped by agent |
-| GET | `/report/status-distribution` | All statuses with counts |
+| Method | Endpoint                      | Description                                                                     |
+| ------ | ----------------------------- | ------------------------------------------------------------------------------- |
+| POST   | `/auth/signup`                | Create account, returns `{ token, user }`                                       |
+| POST   | `/auth/login`                 | Login, returns `{ token, user }`                                                |
+| GET    | `/auth/me`                    | Current user                                                                    |
+| GET    | `/leads`                      | List leads (filters: status, salesAgent, source, priority, tags, sortBy, order) |
+| POST   | `/leads`                      | Create a lead                                                                   |
+| GET    | `/leads/:id`                  | Get a single lead                                                               |
+| PATCH  | `/leads/:id`                  | Partial update                                                                  |
+| DELETE | `/leads/:id`                  | Delete (admin)                                                                  |
+| GET    | `/leads/:id/comments`         | List comments for a lead                                                        |
+| POST   | `/leads/:id/comments`         | Add a comment                                                                   |
+| GET    | `/agents`                     | List sales agents                                                               |
+| POST   | `/agents`                     | Create agent (admin)                                                            |
+| GET    | `/agents/:id`                 | Get a single agent                                                              |
+| DELETE | `/agents/:id`                 | Delete an agent (admin)                                                         |
+| GET    | `/tags`                       | List tags                                                                       |
+| POST   | `/tags`                       | Create tag (admin)                                                              |
+| GET    | `/report/last-week`           | Leads closed in the last 7 days                                                 |
+| GET    | `/report/pipeline`            | Pipeline counts grouped by status                                               |
+| GET    | `/report/closed-by-agent`     | Closed counts grouped by agent                                                  |
+| GET    | `/report/status-distribution` | All statuses with counts                                                        |
 
 ---
 
@@ -146,19 +146,18 @@ Interactive version: [https://vn7mr9.csb.app/](https://vn7mr9.csb.app/)
 For bugs or feature requests, reach out at [ranjan.code33@gmail.com]()
 
 ## Some Screenshots
-- Dashboard 
-<img width="1919" height="942" alt="image" src="https://github.com/user-attachments/assets/51a76370-8eee-4b03-9915-0266285f1307" />
+
+- Dashboard
+  <img width="1919" height="942" alt="image" src="https://github.com/user-attachments/assets/51a76370-8eee-4b03-9915-0266285f1307" />
 
 - Lead List
-<img width="1916" height="944" alt="image" src="https://github.com/user-attachments/assets/9a1044be-7c78-427e-b114-da03cee8f837" />
+  <img width="1916" height="944" alt="image" src="https://github.com/user-attachments/assets/9a1044be-7c78-427e-b114-da03cee8f837" />
 
 - Sales Agents
-<img width="1919" height="942" alt="image" src="https://github.com/user-attachments/assets/78f43b59-5cfe-4c73-b780-f15210d790fc" />
+  <img width="1919" height="942" alt="image" src="https://github.com/user-attachments/assets/78f43b59-5cfe-4c73-b780-f15210d790fc" />
 
 - Reports
-<img width="1919" height="939" alt="image" src="https://github.com/user-attachments/assets/5ab896e4-a0a7-4790-9a53-9e34160e94b3" />
+  <img width="1919" height="939" alt="image" src="https://github.com/user-attachments/assets/5ab896e4-a0a7-4790-9a53-9e34160e94b3" />
 
 - Settings
-<img width="1919" height="942" alt="image" src="https://github.com/user-attachments/assets/610b84f3-777f-4114-958d-a26234c38979" />
-
-
+  <img width="1919" height="942" alt="image" src="https://github.com/user-attachments/assets/610b84f3-777f-4114-958d-a26234c38979" />
