@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAuth } from "../contexts/AuthContext";
 import { ROUTES } from "../constants/appRoutes";
@@ -64,8 +64,10 @@ export const Login = () => {
     <div className="d-flex justify-content-center align-items-center bg-light" style={{ minHeight: "100vh" }}>
       <div className="card p-4 shadow-sm" style={{ width: "100%", maxWidth: 400 }}>
         <div className="mb-4">
-          <span className="fw-bold text-dark" style={{ fontSize: "18px" }}>Anvaya</span>
-          <span className="text-secondary ms-1" style={{ fontSize: "13px" }}>CRM</span>
+          <Link to={ROUTES.DASHBOARD} className="text-decoration-none">
+            <span className="fw-bold text-dark" style={{ fontSize: "18px" }}>Anvaya</span>
+            <span className="text-secondary ms-1" style={{ fontSize: "13px" }}>CRM</span>
+          </Link>
           <p className="text-muted small mb-0 mt-1">Log in to manage your leads</p>
         </div>
 

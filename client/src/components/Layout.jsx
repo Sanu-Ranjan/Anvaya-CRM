@@ -1,4 +1,4 @@
-import { Navigate, NavLink, Outlet, useNavigate } from "react-router-dom";
+import { Link, Navigate, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { ROUTES } from "../constants/appRoutes";
 import { useAuth } from "../contexts/AuthContext";
@@ -82,12 +82,14 @@ export const Layout = () => {
           style={{ minHeight: "100vh" }}
         >
           <div className="px-4 py-4 border-bottom">
-            <span className="fw-bold text-dark" style={{ fontSize: "15px" }}>
-              Anvaya
-            </span>
-            <span className="text-secondary ms-1" style={{ fontSize: "12px" }}>
-              CRM
-            </span>
+            <Link to={ROUTES.DASHBOARD} className="text-decoration-none">
+              <span className="fw-bold text-dark" style={{ fontSize: "15px" }}>
+                Anvaya
+              </span>
+              <span className="text-secondary ms-1" style={{ fontSize: "12px" }}>
+                CRM
+              </span>
+            </Link>
           </div>
           <nav className="flex-column mt-2">
             {links.map((l) =>
