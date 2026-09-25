@@ -101,7 +101,7 @@
 - [ ] Admin "Set Password" in Settings gives an agent a new temporary password
 - [ ] Demo accounts can't change their password
 - [ ] Logging in on the Admin tab with an agent account is rejected (and vice versa)
-- [ ] "Use demo account" fills the right credentials on each tab
+- [ ] "Log in as demo" logs straight in with the right account on each tab
 - [ ] Login with wrong password shows an error
 - [ ] After login, user lands back on the page they tried to open
 - [ ] Sidebar shows the logged-in user's name, email and role

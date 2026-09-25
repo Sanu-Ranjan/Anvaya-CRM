@@ -8,7 +8,7 @@ A full-stack CRM for managing sales leads through a defined pipeline. Built to d
 
 [Live Demo](https://crm.devranjan.cloud/)
 
-Demo logins (the login page also has a "Use demo account" button on each tab):
+Demo logins (or one click on "Log in as demo" on each login tab):
 
 | Role | Email | Password |
 |------|-------|----------|

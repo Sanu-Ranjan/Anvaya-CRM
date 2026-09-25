@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAuth } from "../contexts/AuthContext";
 import { ROUTES } from "../constants/appRoutes";
+import { PasswordInput } from "../components/PasswordInput";
 
 export const ChangePassword = () => {
   const [form, setForm] = useState({ currentPassword: "", newPassword: "", confirm: "" });
@@ -60,15 +61,15 @@ export const ChangePassword = () => {
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <label className="form-label">{forced ? "Temporary Password" : "Current Password"}</label>
-            <input type="password" name="currentPassword" className="form-control" value={form.currentPassword} onChange={handleChange} required autoComplete="current-password" />
+            <PasswordInput name="currentPassword" value={form.currentPassword} onChange={handleChange} required autoComplete="current-password" />
           </div>
           <div className="mb-3">
             <label className="form-label">New Password</label>
-            <input type="password" name="newPassword" className="form-control" placeholder="At least 6 characters" value={form.newPassword} onChange={handleChange} required autoComplete="new-password" />
+            <PasswordInput name="newPassword" placeholder="At least 6 characters" value={form.newPassword} onChange={handleChange} required autoComplete="new-password" />
           </div>
           <div className="mb-3">
             <label className="form-label">Confirm New Password</label>
-            <input type="password" name="confirm" className="form-control" value={form.confirm} onChange={handleChange} required autoComplete="new-password" />
+            <PasswordInput name="confirm" value={form.confirm} onChange={handleChange} required autoComplete="new-password" />
           </div>
           <button type="submit" className="btn btn-primary w-100" disabled={loading || user?.isDemo}>
             {loading ? "Saving..." : "Update Password"}

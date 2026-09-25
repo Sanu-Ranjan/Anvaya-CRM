@@ -3,6 +3,7 @@ import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAuth } from "../contexts/AuthContext";
 import { ROUTES } from "../constants/appRoutes";
+import { PasswordInput } from "../components/PasswordInput";
 
 // demo accounts come from `npm run seed`
 const ROLE_TABS = {
@@ -35,11 +36,11 @@ export const Login = () => {
     setForm({ email: "", password: "" });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // used by the form and by the demo button (one click, no typing)
+  const doLogin = async ({ email, password }) => {
     setLoading(true);
     try {
-      const user = await login(form.email, form.password, role);
+      const user = await login(email, password, role);
       if (user.mustChangePassword) {
         toast.info("Please set your own password to continue.");
         navigate(ROUTES.CHANGE_PASSWORD, { replace: true });
@@ -52,6 +53,11 @@ export const Login = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    doLogin(form);
   };
 
   return (
@@ -84,7 +90,7 @@ export const Login = () => {
           </div>
           <div className="mb-3">
             <label className="form-label">Password</label>
-            <input type="password" name="password" className="form-control" value={form.password} onChange={handleChange} required />
+            <PasswordInput name="password" value={form.password} onChange={handleChange} required autoComplete="current-password" />
           </div>
           <button type="submit" className="btn btn-primary w-100" disabled={loading}>
             {loading ? "Logging in..." : `Log In as ${ROLE_TABS[role].label}`}
@@ -92,9 +98,10 @@ export const Login = () => {
           <button
             type="button"
             className="btn btn-outline-secondary w-100 mt-2"
-            onClick={() => setForm(ROLE_TABS[role].demo)}
+            onClick={() => doLogin(ROLE_TABS[role].demo)}
+            disabled={loading}
           >
-            Use demo {ROLE_TABS[role].label.toLowerCase()} account
+            Log in as demo {ROLE_TABS[role].label.toLowerCase()}
           </button>
         </form>
 
