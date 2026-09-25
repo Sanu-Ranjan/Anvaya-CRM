@@ -105,6 +105,14 @@ export const Login = () => {
           </button>
         </form>
 
+        <button
+          type="button"
+          className="btn btn-link btn-sm p-0 mt-3 text-secondary"
+          onClick={() => navigate(ROUTES.DASHBOARD)}
+        >
+          ← Continue without logging in
+        </button>
+
         {role === "agent" ? (
           <p className="text-muted small mt-3 mb-0">
             Your admin gives you your login. On first login you'll set your own password.

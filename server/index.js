@@ -41,8 +41,15 @@ app.get("/anvaya/v1/", (req, res) => {
 // public
 app.use("/anvaya/v1/auth", authRouter);
 
-// everything below needs a logged in user who has set their own password
-const protect = [verifyToken, requirePasswordChanged];
+// anyone can view (GET), but creating, editing and deleting needs a
+// logged in user who has set their own password
+const protect = (req, res, next) => {
+  if (req.method === "GET") return next();
+  verifyToken(req, res, (err) => {
+    if (err) return next(err);
+    requirePasswordChanged(req, res, next);
+  });
+};
 app.use("/anvaya/v1/leads/:id/comments", protect, commentsRouter);
 app.use("/anvaya/v1/leads", protect, leadsRouter);
 app.use("/anvaya/v1/agents", protect, agentsRouter);

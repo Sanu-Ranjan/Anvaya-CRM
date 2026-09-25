@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { Navigate, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { ROUTES } from "../constants/appRoutes";
 import { useAuth } from "../contexts/AuthContext";
@@ -12,18 +12,24 @@ const links = [
 ];
 
 export const Layout = () => {
-  const { user, isAdmin, logout } = useAuth();
+  const { user, isAdmin, isLoggedIn, logout } = useAuth();
   const roleLabel = isAdmin ? "Admin" : "Sales Agent";
   const navigate = useNavigate();
 
   // agents still see admin-only links, just dimmed and disabled
-  const isLocked = (l) => l.adminOnly && !isAdmin;
+  // (guests see them normally, clicking sends them to login)
+  const isLocked = (l) => isLoggedIn && l.adminOnly && !isAdmin;
 
   const handleLogout = () => {
     logout();
     toast.info("Logged out.");
-    navigate(ROUTES.LOGIN);
+    navigate(ROUTES.DASHBOARD);
   };
+
+  // temporary password: nothing else until it's changed
+  if (user?.mustChangePassword) {
+    return <Navigate to={ROUTES.CHANGE_PASSWORD} replace />;
+  }
 
   return (
     <>
@@ -52,9 +58,21 @@ export const Layout = () => {
             </NavLink>
           ),
         )}
-        <button className="btn btn-sm btn-outline-danger text-nowrap ms-auto" onClick={handleLogout}>
-          Logout
-        </button>
+        {isLoggedIn ? (
+          <button
+            className="btn btn-sm btn-outline-danger text-nowrap ms-auto"
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
+        ) : (
+          <button
+            className="btn btn-sm btn-primary text-nowrap ms-auto"
+            onClick={() => navigate(ROUTES.LOGIN)}
+          >
+            Log In
+          </button>
+        )}
       </nav>
 
       <div className="row g-0" style={{ minHeight: "100vh" }}>
@@ -78,50 +96,79 @@ export const Layout = () => {
                   key={l.label}
                   className="d-block px-4 py-2 text-secondary border-start border-3 border-transparent"
                   title="Admin only"
-                  style={{ fontSize: "14px", opacity: 0.45, cursor: "not-allowed" }}
+                  style={{
+                    fontSize: "14px",
+                    opacity: 0.45,
+                    cursor: "not-allowed",
+                  }}
                 >
                   {l.label} 🔒
                 </span>
               ) : (
-              <NavLink
-                key={l.label}
-                to={l.route}
-                end={l.route === ROUTES.DASHBOARD}
-                className={({ isActive }) =>
-                  `d-block px-4 py-2 text-decoration-none border-start border-3 ${
-                    isActive
-                      ? "text-primary fw-semibold border-primary"
-                      : "text-secondary border-transparent"
-                  }`
-                }
-                style={{ fontSize: "14px" }}
-              >
-                {l.label}
-              </NavLink>
+                <NavLink
+                  key={l.label}
+                  to={l.route}
+                  end={l.route === ROUTES.DASHBOARD}
+                  className={({ isActive }) =>
+                    `d-block px-4 py-2 text-decoration-none border-start border-3 ${
+                      isActive
+                        ? "text-primary fw-semibold border-primary"
+                        : "text-secondary border-transparent"
+                    }`
+                  }
+                  style={{ fontSize: "14px" }}
+                >
+                  {l.label}
+                </NavLink>
               ),
             )}
           </nav>
 
-          {/* logged in user */}
+          {/* logged in user, or a login button for guests */}
+          {!isLoggedIn ? (
+            <div className="mt-auto px-4 py-3 border-top">
+              <div className="text-secondary" style={{ fontSize: "12px" }}>
+                Browsing as guest
+              </div>
+              <button className="btn btn-sm btn-primary w-100 mt-2" onClick={() => navigate(ROUTES.LOGIN)}>
+                Log In
+              </button>
+            </div>
+          ) : (
           <div className="mt-auto px-4 py-3 border-top">
-            <div className="fw-semibold text-dark text-truncate" style={{ fontSize: "14px" }}>
+            <div
+              className="fw-semibold text-dark text-truncate"
+              style={{ fontSize: "14px" }}
+            >
               {user?.name ?? "..."}
             </div>
-            <div className="text-secondary text-truncate" style={{ fontSize: "12px" }}>
+            <div
+              className="text-secondary text-truncate"
+              style={{ fontSize: "12px" }}
+            >
               {user?.email}
             </div>
             {user && (
-              <span className={`badge mt-1 ${isAdmin ? "bg-primary" : "bg-secondary"}`}>
+              <span
+                className={`badge mt-1 ${isAdmin ? "bg-primary" : "bg-secondary"}`}
+              >
                 {roleLabel}
               </span>
             )}
-            <button className="btn btn-sm btn-outline-secondary w-100 mt-3" onClick={() => navigate(ROUTES.CHANGE_PASSWORD)}>
+            <button
+              className="btn btn-sm btn-outline-secondary w-100 mt-3"
+              onClick={() => navigate(ROUTES.CHANGE_PASSWORD)}
+            >
               Change Password
             </button>
-            <button className="btn btn-sm btn-outline-danger w-100 mt-2" onClick={handleLogout}>
+            <button
+              className="btn btn-sm btn-outline-danger w-100 mt-2"
+              onClick={handleLogout}
+            >
               Logout
             </button>
           </div>
+          )}
         </div>
 
         {/* Main content */}

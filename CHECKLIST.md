@@ -94,7 +94,9 @@
 
 ## Authentication & Roles
 
-- [ ] Opening any page while logged out redirects to Login
+- [ ] Logged out, Dashboard, Leads, Agents and Reports open normally with a "Log In" button in the sidebar
+- [ ] Logged out, Add New Lead, Add New Agent, Settings, Edit lead and posting a comment send you to Login, and back after logging in
+- [ ] "Continue without logging in" on the Login page goes to the Dashboard
 - [ ] Admin adding an agent sets a temporary password; the agent can log in with it
 - [ ] On first login the agent is sent to Change Password and can't open other pages until it's changed
 - [ ] Change Password rejects a wrong current password and mismatched confirmation

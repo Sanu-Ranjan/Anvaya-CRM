@@ -30,15 +30,18 @@ export const LeadManagement = () => {
   const loading = leadLoading || commentsLoading;
   const loadingErr = leadError || commentsError;
 
-  const { isAdmin, user } = useAuth();
+  const { isAdmin, isLoggedIn, user, requireAuth } = useAuth();
 
   const displayLead = lead ?? fetchedLead;
-  // admin edits any lead, agents only their own
+  // admin edits any lead, agents only their own;
+  // guests see the button and get sent to login
   const canEdit =
+    !isLoggedIn ||
     isAdmin || String(displayLead?.salesAgent?._id) === String(user?.salesAgent);
   const displayComments = comments ?? fetchedComments;
 
   const handleEdit = () => {
+    if (!requireAuth()) return;
     setForm({
       name: displayLead.name,
       source: displayLead.source,
@@ -74,6 +77,7 @@ export const LeadManagement = () => {
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
+    if (!requireAuth()) return;
     setSubmitting(true);
     try {
       // author is the logged in user, set by the server

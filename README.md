@@ -59,7 +59,8 @@ npm run dev               # starts on http://localhost:5173
 
 ## Combined Features
 
-- Login with JWT; the whole app is behind login and there is no public signup
+- Anyone can browse the dashboard, leads, agents and reports without logging in; adding or editing anything sends guests to login
+- Login with JWT, no public signup
 - Admin adds a sales agent together with a temporary password; the agent must set their own password on first login
 - Change password for every user; admin can reset an agent's password from Settings
 - Two roles: **Admin** manages agents, deletes leads and uses Settings; **Sales Agent** adds leads for themselves and edits only leads assigned to them
@@ -83,7 +84,7 @@ npm run dev               # starts on http://localhost:5173
 
 ## API Quick Reference
 
-All endpoints are prefixed with `/anvaya/v1`. Everything except `/auth/login` needs an `Authorization: Bearer <token>` header. Routes marked (admin) return 403 for sales agents.
+All endpoints are prefixed with `/anvaya/v1`. All `GET` routes are public. Every create, update and delete needs an `Authorization: Bearer <token>` header. Routes marked (admin) return 403 for sales agents.
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -113,6 +114,7 @@ All endpoints are prefixed with `/anvaya/v1`. Everything except `/auth/login` ne
 
 ## Design Decisions
 
+- **Public read, protected writes** — visitors can explore the whole CRM without an account; the server only requires a token for non-GET requests, and the frontend sends guests to login (and back) when they try to add or edit
 - **No public signup** — with self-signup, anyone who knew an agent's email could register first and take over the account. Instead the admin creates the agent and their login in one step, linking the `User` to the `SalesAgent` record; deleting an agent also removes their login
 - **Temporary password, forced change** — the admin sets an initial password, and until the agent changes it (`mustChangePassword`), every API route except `/auth/me` and `/auth/change-password` returns 403 and the frontend redirects to the change-password page. The admin never keeps knowing the real password
 - **Admin from env** — on startup the server creates the admin from `ADMIN_NAME` / `ADMIN_EMAIL` / `ADMIN_PASSWORD` if that email has no account yet, so there is no way to become admin from the UI, and a password changed later in the app is never overwritten

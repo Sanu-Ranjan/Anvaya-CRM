@@ -1,4 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { ROUTES } from "../constants/appRoutes";
 import { API_ROUTES } from "../constants/apiRoutes";
 import { get, post } from "../api/client";
 import { AUTH_LOGOUT_EVENT, clearToken, getToken, setToken } from "../utils/auth";
@@ -8,6 +11,8 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [token, setTokenState] = useState(getToken);
   const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const logout = useCallback(() => {
     clearToken();
@@ -47,6 +52,16 @@ export const AuthProvider = ({ children }) => {
     return data.user;
   };
 
+  // call before any write action: guests are sent to login and come back after
+  const requireAuth = () => {
+    if (token) return true;
+    toast.info("Please log in first.");
+    navigate(ROUTES.LOGIN, {
+      state: { from: location.pathname + location.search },
+    });
+    return false;
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -54,6 +69,8 @@ export const AuthProvider = ({ children }) => {
         user,
         isAdmin: user?.role === "admin",
         isAgent: user?.role === "agent",
+        isLoggedIn: !!token,
+        requireAuth,
         login,
         changePassword,
         logout,
