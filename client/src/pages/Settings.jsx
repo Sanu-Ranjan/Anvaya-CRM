@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { API_ROUTES } from "../constants/apiRoutes";
 import { useGet } from "../hooks/useGet";
-import { del } from "../api/client";
+import { del, patch } from "../api/client";
 import { toast } from "react-toastify";
 
 export const Settings = () => {
@@ -19,6 +19,18 @@ export const Settings = () => {
       await del(API_ROUTES.agents.delete(id));
       setAgents(agents.filter((a) => a._id !== id));
       toast.success("Agent deleted.");
+    } catch (err) {
+      toast.error(err.message);
+    }
+  };
+
+  // new temporary password; also gives a login to agents that don't have one yet
+  const handleSetPassword = async (agent) => {
+    const password = window.prompt(`New temporary password for ${agent.name} (min 6 characters):`);
+    if (!password) return;
+    try {
+      const data = await patch(API_ROUTES.agents.setPassword(agent._id), { password });
+      toast.success(data.message);
     } catch (err) {
       toast.error(err.message);
     }
@@ -87,7 +99,8 @@ export const Settings = () => {
                     <tr key={agent._id}>
                       <td>{agent.name}</td>
                       <td>{agent.email}</td>
-                      <td>
+                      <td className="text-nowrap">
+                        <button className="btn btn-sm btn-outline-secondary me-2" onClick={() => handleSetPassword(agent)}>Set Password</button>
                         <button className="btn btn-sm btn-outline-danger" onClick={() => handleDeleteAgent(agent._id)}>Delete</button>
                       </td>
                     </tr>

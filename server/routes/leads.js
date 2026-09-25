@@ -30,6 +30,10 @@ const PRIORITY_RANK = { High: 3, Medium: 2, Low: 1 };
 router.post(
   "/",
   asyncHandler(async (req, res) => {
+    // agents can only create leads for themselves
+    if (req.user.role === "agent") {
+      req.body.salesAgent = req.user.salesAgent;
+    }
     const { salesAgent } = req.body;
 
     if (salesAgent && !mongoose.Types.ObjectId.isValid(salesAgent)) {
@@ -176,6 +180,14 @@ router.patch(
     const lead = await Lead.findById(req.params.id);
     if (!lead) {
       throw httpError(404, `Lead with ID '${req.params.id}' not found.`);
+    }
+
+    // agents can edit only their own leads, and can't reassign them
+    if (req.user.role === "agent") {
+      if (String(lead.salesAgent) !== String(req.user.salesAgent)) {
+        throw httpError(403, "You can only edit leads assigned to you.");
+      }
+      delete req.body.salesAgent;
     }
 
     if (req.body.salesAgent) {

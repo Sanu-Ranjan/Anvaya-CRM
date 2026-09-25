@@ -22,8 +22,23 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["admin", "member"],
-      default: "member",
+      enum: ["admin", "agent"],
+      required: true,
+    },
+    // agents are linked to their SalesAgent record, admins have none
+    salesAgent: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "SalesAgent",
+    },
+    // true while the user still has the temporary password the admin set
+    mustChangePassword: {
+      type: Boolean,
+      default: false,
+    },
+    // demo accounts from the seed, their password can't be changed
+    isDemo: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true },

@@ -10,7 +10,7 @@ const ROUTES = {
   REPORTS: "/reports",
   SETTINGS: "/settings",
   LOGIN: "/login",
-  SIGNUP: "/signup",
+  CHANGE_PASSWORD: "/change-password",
 };
 
 const ROUTES_DEFINITION = {
@@ -25,7 +25,7 @@ const ROUTES_DEFINITION = {
   REPORTS: "/reports",
   SETTINGS: "/settings",
   LOGIN: "/login",
-  SIGNUP: "/signup",
+  CHANGE_PASSWORD: "/change-password",
 };
 
 export { ROUTES, ROUTES_DEFINITION };

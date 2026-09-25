@@ -5,6 +5,7 @@ import { ROUTES } from "../constants/appRoutes";
 import { useGet } from "../hooks/useGet";
 import { post, patch } from "../api/client";
 import { toast } from "react-toastify";
+import { useAuth } from "../contexts/AuthContext";
 
 const STATUSES = ["New", "Contacted", "Qualified", "Proposal Sent", "Closed"];
 const SOURCES = ["Website", "Referral", "Cold Call", "Advertisement", "Email", "Other"];
@@ -29,7 +30,12 @@ export const LeadManagement = () => {
   const loading = leadLoading || commentsLoading;
   const loadingErr = leadError || commentsError;
 
+  const { isAdmin, user } = useAuth();
+
   const displayLead = lead ?? fetchedLead;
+  // admin edits any lead, agents only their own
+  const canEdit =
+    isAdmin || String(displayLead?.salesAgent?._id) === String(user?.salesAgent);
   const displayComments = comments ?? fetchedComments;
 
   const handleEdit = () => {
@@ -98,9 +104,13 @@ export const LeadManagement = () => {
           <div className="card h-100">
             <div className="card-header d-flex justify-content-between align-items-center">
               <span className="fw-semibold">Lead Details</span>
-              {!editing && (
+              {!editing && (canEdit ? (
                 <button className="btn btn-outline-primary btn-sm" onClick={handleEdit}>Edit</button>
-              )}
+              ) : (
+                <span title="Only the assigned agent or an admin can edit this lead" style={{ cursor: "not-allowed" }}>
+                  <button className="btn btn-outline-primary btn-sm" disabled style={{ pointerEvents: "none" }}>Edit</button>
+                </span>
+              ))}
             </div>
             <div className="card-body">
               {!editing ? (
@@ -130,7 +140,7 @@ export const LeadManagement = () => {
                     </div>
                     <div className="col-12 col-md-6">
                       <label className="form-label">Sales Agent</label>
-                      <select name="salesAgent" className="form-select" value={form.salesAgent} onChange={handleChange}>
+                      <select name="salesAgent" className="form-select" value={form.salesAgent} onChange={handleChange} disabled={!isAdmin} title={isAdmin ? undefined : "Only an admin can reassign leads"}>
                         {agents.map((a) => <option key={a._id} value={a._id}>{a.name}</option>)}
                       </select>
                     </div>

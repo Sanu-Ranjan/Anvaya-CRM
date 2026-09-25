@@ -16,20 +16,13 @@ const agents = [
 ];
 
 // demo logins, also listed in the README
-const demoUsers = [
-  {
-    name: "Demo Admin",
-    email: "admin@anvaya.com",
-    password: "admin123",
-    role: "admin",
-  },
-  {
-    name: "Demo Member",
-    email: "member@anvaya.com",
-    password: "member123",
-    role: "member",
-  },
-];
+// the demo agent logs in as the first seeded agent (John Doe)
+const demoAdmin = {
+  name: "Demo Admin",
+  email: "admin@anvaya.com",
+  password: "admin123",
+};
+const demoAgentPassword = "agent123";
 
 const tags = [
   "High Value",
@@ -100,20 +93,32 @@ const seed = async () => {
     Tag.deleteMany({}),
   ]);
 
-  // only demo accounts are reset, real signups are left alone
-  console.log("Seeding demo users...");
-  await User.deleteMany({ email: { $in: demoUsers.map((u) => u.email) } });
-  const createdUsers = await User.insertMany(
-    await Promise.all(
-      demoUsers.map(async (u) => ({
-        ...u,
-        password: await bcrypt.hash(u.password, 10),
-      })),
-    ),
-  );
+  // agents are recreated, so all agent logins go too; real admins are kept.
+  // other seeded agents have no login: the admin can set one from Settings
+  await User.deleteMany({
+    $or: [{ role: "agent" }, { email: demoAdmin.email }],
+  });
 
   console.log("Seeding sales agents...");
   const createdAgents = await SalesAgent.insertMany(agents);
+
+  console.log("Seeding demo users...");
+  const createdUsers = await User.insertMany([
+    {
+      ...demoAdmin,
+      password: await bcrypt.hash(demoAdmin.password, 10),
+      role: "admin",
+      isDemo: true,
+    },
+    {
+      name: createdAgents[0].name,
+      email: createdAgents[0].email,
+      password: await bcrypt.hash(demoAgentPassword, 10),
+      role: "agent",
+      salesAgent: createdAgents[0]._id,
+      isDemo: true,
+    },
+  ]);
 
   console.log("Seeding tags...");
   await Tag.insertMany(tags.map((name) => ({ name })));

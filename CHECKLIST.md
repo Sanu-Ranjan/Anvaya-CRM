@@ -95,11 +95,19 @@
 ## Authentication & Roles
 
 - [ ] Opening any page while logged out redirects to Login
-- [ ] Signup creates an account and lands on the Dashboard
+- [ ] Admin adding an agent sets a temporary password; the agent can log in with it
+- [ ] On first login the agent is sent to Change Password and can't open other pages until it's changed
+- [ ] Change Password rejects a wrong current password and mismatched confirmation
+- [ ] Admin "Set Password" in Settings gives an agent a new temporary password
+- [ ] Demo accounts can't change their password
+- [ ] Logging in on the Admin tab with an agent account is rejected (and vice versa)
+- [ ] "Use demo account" fills the right credentials on each tab
 - [ ] Login with wrong password shows an error
 - [ ] After login, user lands back on the page they tried to open
 - [ ] Sidebar shows the logged-in user's name, email and role
 - [ ] Logout clears the session and returns to Login
-- [ ] Member does not see Settings or the Add New Agent button
-- [ ] Member opening /settings or /agents/new directly is sent to the Dashboard
+- [ ] For agents, Settings and Add New Agent are dimmed and disabled with an "Admin only" tooltip
+- [ ] Agent opening /settings or /agents/new directly is sent to the Dashboard
+- [ ] Agent can edit their own leads but Edit is disabled on other agents' leads
+- [ ] New lead created by an agent is assigned to them automatically
 - [ ] Admin sees Settings and can delete agents and leads

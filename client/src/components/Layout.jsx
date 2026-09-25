@@ -13,10 +13,11 @@ const links = [
 
 export const Layout = () => {
   const { user, isAdmin, logout } = useAuth();
+  const roleLabel = isAdmin ? "Admin" : "Sales Agent";
   const navigate = useNavigate();
 
-  // members don't see admin-only links
-  const visibleLinks = links.filter((l) => !l.adminOnly || isAdmin);
+  // agents still see admin-only links, just dimmed and disabled
+  const isLocked = (l) => l.adminOnly && !isAdmin;
 
   const handleLogout = () => {
     logout();
@@ -28,18 +29,29 @@ export const Layout = () => {
     <>
       {/* Mobile top nav — outside the grid */}
       <nav className="d-flex d-md-none gap-2 p-2 border-bottom overflow-auto flex-wrap">
-        {visibleLinks.map((l) => (
-          <NavLink
-            key={l.label}
-            to={l.route}
-            end={l.route === ROUTES.DASHBOARD}
-            className={({ isActive }) =>
-              `btn btn-sm ${isActive ? "btn-primary" : "btn-outline-secondary"} text-nowrap`
-            }
-          >
-            {l.label}
-          </NavLink>
-        ))}
+        {links.map((l) =>
+          isLocked(l) ? (
+            <span
+              key={l.label}
+              className="btn btn-sm btn-outline-secondary text-nowrap"
+              title="Admin only"
+              style={{ opacity: 0.45, cursor: "not-allowed" }}
+            >
+              {l.label}
+            </span>
+          ) : (
+            <NavLink
+              key={l.label}
+              to={l.route}
+              end={l.route === ROUTES.DASHBOARD}
+              className={({ isActive }) =>
+                `btn btn-sm ${isActive ? "btn-primary" : "btn-outline-secondary"} text-nowrap`
+              }
+            >
+              {l.label}
+            </NavLink>
+          ),
+        )}
         <button className="btn btn-sm btn-outline-danger text-nowrap ms-auto" onClick={handleLogout}>
           Logout
         </button>
@@ -60,7 +72,17 @@ export const Layout = () => {
             </span>
           </div>
           <nav className="flex-column mt-2">
-            {visibleLinks.map((l) => (
+            {links.map((l) =>
+              isLocked(l) ? (
+                <span
+                  key={l.label}
+                  className="d-block px-4 py-2 text-secondary border-start border-3 border-transparent"
+                  title="Admin only"
+                  style={{ fontSize: "14px", opacity: 0.45, cursor: "not-allowed" }}
+                >
+                  {l.label} 🔒
+                </span>
+              ) : (
               <NavLink
                 key={l.label}
                 to={l.route}
@@ -76,7 +98,8 @@ export const Layout = () => {
               >
                 {l.label}
               </NavLink>
-            ))}
+              ),
+            )}
           </nav>
 
           {/* logged in user */}
@@ -89,10 +112,13 @@ export const Layout = () => {
             </div>
             {user && (
               <span className={`badge mt-1 ${isAdmin ? "bg-primary" : "bg-secondary"}`}>
-                {user.role}
+                {roleLabel}
               </span>
             )}
-            <button className="btn btn-sm btn-outline-danger w-100 mt-3" onClick={handleLogout}>
+            <button className="btn btn-sm btn-outline-secondary w-100 mt-3" onClick={() => navigate(ROUTES.CHANGE_PASSWORD)}>
+              Change Password
+            </button>
+            <button className="btn btn-sm btn-outline-danger w-100 mt-2" onClick={handleLogout}>
               Logout
             </button>
           </div>

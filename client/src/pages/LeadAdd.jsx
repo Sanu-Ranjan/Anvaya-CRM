@@ -5,6 +5,7 @@ import { ROUTES } from "../constants/appRoutes";
 import { useGet } from "../hooks/useGet";
 import { post } from "../api/client";
 import { toast } from "react-toastify";
+import { useAuth } from "../contexts/AuthContext";
 
 const STATUSES = ["New", "Contacted", "Qualified", "Proposal Sent", "Closed"];
 const SOURCES = ["Website", "Referral", "Cold Call", "Advertisement", "Email", "Other"];
@@ -16,6 +17,9 @@ export const LeadAdd = () => {
     name: "", source: "", salesAgent: "", status: "New", priority: "Medium", timeToClose: "", tags: [],
   });
   const [loading, setLoading] = useState(false);
+  const { isAgent, user } = useAuth();
+  // agents always create leads for themselves
+  const salesAgent = isAgent ? user?.salesAgent ?? "" : form.salesAgent;
 
   const { data: agents } = useGet(API_ROUTES.agents.getAll);
   const { data: tags } = useGet(API_ROUTES.tags.getAll);
@@ -30,7 +34,7 @@ export const LeadAdd = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await post(API_ROUTES.leads.add, form);
+      await post(API_ROUTES.leads.add, { ...form, salesAgent });
       toast.success("Lead created successfully!");
       navigate(ROUTES.LEADS);
     } catch (err) {
@@ -65,7 +69,7 @@ export const LeadAdd = () => {
               </div>
               <div className="col-12 col-md-6">
                 <label className="form-label">Sales Agent</label>
-                <select name="salesAgent" className="form-select" value={form.salesAgent} onChange={handleChange} required>
+                <select name="salesAgent" className="form-select" value={salesAgent} onChange={handleChange} required disabled={isAgent} title={isAgent ? "New leads are assigned to you" : undefined}>
                   <option value="">Select Agent</option>
                   {agents.map((a) => <option key={a._id} value={a._id}>{a.name}</option>)}
                 </select>

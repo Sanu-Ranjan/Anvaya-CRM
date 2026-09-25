@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 
 export const SalesAgentAdd = () => {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: "", email: "" });
+  const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
@@ -17,7 +17,7 @@ export const SalesAgentAdd = () => {
     setLoading(true);
     try {
       await post(API_ROUTES.agents.add, form);
-      toast.success("Agent added successfully!");
+      toast.success("Agent added. Share the email and temporary password with them.");
       navigate(ROUTES.AGENTS);
     } catch (err) {
       toast.error(err.message);
@@ -45,6 +45,11 @@ export const SalesAgentAdd = () => {
               <div className="col-12 col-md-6">
                 <label className="form-label">Email</label>
                 <input type="email" name="email" className="form-control" value={form.email} onChange={handleChange} required />
+              </div>
+              <div className="col-12 col-md-6">
+                <label className="form-label">Temporary Password</label>
+                <input type="text" name="password" className="form-control" value={form.password} onChange={handleChange} minLength={6} required autoComplete="off" />
+                <div className="form-text">The agent will be asked to change it on first login.</div>
               </div>
               <div className="col-12">
                 <button type="submit" className="btn btn-primary" disabled={loading}>

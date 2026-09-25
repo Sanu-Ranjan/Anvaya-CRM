@@ -15,7 +15,7 @@ import { SalesAgentView } from "./pages/SalesAgentView";
 import { SalesAgentAdd } from "./pages/SalesAgentAdd";
 import { Settings } from "./pages/Settings";
 import { Login } from "./pages/Login";
-import { Signup } from "./pages/Signup";
+import { ChangePassword } from "./pages/ChangePassword";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
@@ -31,11 +31,11 @@ const router = createBrowserRouter([
     element: <Root />,
     children: [
       { path: ROUTES_DEFINITION.LOGIN,  element: <Login /> },
-      { path: ROUTES_DEFINITION.SIGNUP, element: <Signup /> },
       {
         // whole app needs login
         element: <ProtectedRoute />,
         children: [
+          { path: ROUTES_DEFINITION.CHANGE_PASSWORD, element: <ChangePassword /> },
           {
             element: <Layout />,
             children: [

@@ -29,19 +29,23 @@ export const AuthProvider = ({ children }) => {
       .catch((err) => console.log("Error fetching user:", err.message));
   }, [token]);
 
-  // login and signup both return { token, user }
-  const authenticate = async (url, body) => {
-    const data = await post(url, body);
+  // role = the login tab used, the server rejects a mismatch
+  const login = async (email, password, role) => {
+    const data = await post(API_ROUTES.auth.login, { email, password, role });
     setToken(data.token);
     setTokenState(data.token);
     setUser(data.user);
     return data.user;
   };
 
-  const login = (email, password) =>
-    authenticate(API_ROUTES.auth.login, { email, password });
-
-  const signup = (form) => authenticate(API_ROUTES.auth.signup, form);
+  const changePassword = async (currentPassword, newPassword) => {
+    const data = await post(API_ROUTES.auth.changePassword, {
+      currentPassword,
+      newPassword,
+    });
+    setUser(data.user);
+    return data.user;
+  };
 
   return (
     <AuthContext.Provider
@@ -49,8 +53,9 @@ export const AuthProvider = ({ children }) => {
         token,
         user,
         isAdmin: user?.role === "admin",
+        isAgent: user?.role === "agent",
         login,
-        signup,
+        changePassword,
         logout,
       }}
     >

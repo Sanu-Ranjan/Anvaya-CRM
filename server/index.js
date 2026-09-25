@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const { initializeDatabase } = require("./config/db");
 const { errorHandler } = require("./middleware/errorHandler");
+const { ensureAdmin } = require("./utils/ensureAdmin");
 
 const leadsRouter = require("./routes/leads");
 const agentsRouter = require("./routes/agents");
@@ -10,7 +11,7 @@ const commentsRouter = require("./routes/comments");
 const tagsRouter = require("./routes/tags");
 const reportsRouter = require("./routes/reports");
 const authRouter = require("./routes/auth");
-const { verifyToken } = require("./middleware/auth");
+const { verifyToken, requirePasswordChanged } = require("./middleware/auth");
 
 const app = express();
 
@@ -40,12 +41,13 @@ app.get("/anvaya/v1/", (req, res) => {
 // public
 app.use("/anvaya/v1/auth", authRouter);
 
-// everything below needs a logged in user
-app.use("/anvaya/v1/leads/:id/comments", verifyToken, commentsRouter);
-app.use("/anvaya/v1/leads", verifyToken, leadsRouter);
-app.use("/anvaya/v1/agents", verifyToken, agentsRouter);
-app.use("/anvaya/v1/tags", verifyToken, tagsRouter);
-app.use("/anvaya/v1/report", verifyToken, reportsRouter);
+// everything below needs a logged in user who has set their own password
+const protect = [verifyToken, requirePasswordChanged];
+app.use("/anvaya/v1/leads/:id/comments", protect, commentsRouter);
+app.use("/anvaya/v1/leads", protect, leadsRouter);
+app.use("/anvaya/v1/agents", protect, agentsRouter);
+app.use("/anvaya/v1/tags", protect, tagsRouter);
+app.use("/anvaya/v1/report", protect, reportsRouter);
 
 app.use((req, res) => {
   res
@@ -57,8 +59,10 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
 
-initializeDatabase().then(() => {
-  app.listen(PORT, () => {
-    console.log(`✓ Anvaya API listening on http://localhost:${PORT}`);
+initializeDatabase()
+  .then(ensureAdmin)
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`✓ Anvaya API listening on http://localhost:${PORT}`);
+    });
   });
-});

@@ -20,7 +20,13 @@ const verifyToken = asyncHandler(async (req, res, next) => {
   const user = await User.findById(decoded.id);
   if (!user) throw httpError(401, "Unauthorized: user not found");
 
-  req.user = { id: user._id, name: user.name, role: user.role };
+  req.user = {
+    id: user._id,
+    name: user.name,
+    role: user.role,
+    salesAgent: user.salesAgent,
+    mustChangePassword: user.mustChangePassword,
+  };
   next();
 });
 
@@ -32,4 +38,12 @@ const requireAdmin = (req, res, next) => {
   next();
 };
 
-module.exports = { verifyToken, requireAdmin };
+// use after verifyToken: blocks everything until the temporary password is changed
+const requirePasswordChanged = (req, res, next) => {
+  if (req.user?.mustChangePassword) {
+    return next(httpError(403, "Please change your temporary password first."));
+  }
+  next();
+};
+
+module.exports = { verifyToken, requireAdmin, requirePasswordChanged };
